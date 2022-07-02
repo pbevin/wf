@@ -1,0 +1,6 @@
+[submodule "crates/lexi/lexicon"]
+	path = crates/lexi/lexicon
+	url = git@github.com:pbevin/lexicon.git
+[submodule "lexicon"]
+	path = lexicon
+	url = git@github.com:pbevin/lexicon.git
