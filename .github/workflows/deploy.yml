@@ -9,4 +9,9 @@ jobs:
       steps:
         - uses: actions/checkout@v2
         - uses: superfly/flyctl-actions/setup-flyctl@master
+        - uses: actions/setup-node@v3
+          with:
+            node-version: 14
+        - run: npm ci
+        - run: npm run build
         - run: flyctl deploy --remote-only
