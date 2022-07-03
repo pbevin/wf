@@ -1,7 +1,6 @@
 #![warn(clippy::str_to_string)]
 #![warn(clippy::if_then_some_else_none)]
 
-
 mod assets;
 mod lexi;
 mod server;
@@ -9,15 +8,15 @@ mod server;
 use self::lexi::FilterBuilder;
 use self::lexi::Lexicon;
 use self::lexi::{Filter, LengthRange, SortedLetters};
+use crate::lexi::Popularity;
 use clap::ArgGroup;
 use clap::Parser;
 use clap::Subcommand;
+use lexi::solve_anagram;
 use owo_colors::OwoColorize;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::EnvFilter;
-use lexi::solve_anagram;
-use crate::lexi::Popularity;
 
 fn main() {
     install_tracing();

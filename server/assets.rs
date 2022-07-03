@@ -34,7 +34,5 @@ pub async fn static_path(uri: Uri) -> Result<impl IntoResponse, StatusCode> {
             tracing::error!("{}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
-
-        
     }
 }

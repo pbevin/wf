@@ -1,7 +1,7 @@
+use super::Entry;
 use super::LengthRange;
 use super::LetterMask;
 use super::SortedLetters;
-use super::Entry;
 
 #[derive(Debug, Clone)]
 pub enum Check {

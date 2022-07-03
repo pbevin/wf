@@ -1,10 +1,10 @@
-mod sorted_letters;
-mod length_range;
 mod filter;
+mod length_range;
+mod sorted_letters;
 
-pub use sorted_letters::SortedLetters;
-pub use length_range::LengthRange;
 pub use filter::{Filter, FilterBuilder};
+pub use length_range::LengthRange;
+pub use sorted_letters::SortedLetters;
 
 use std::collections::HashMap;
 
@@ -221,11 +221,6 @@ impl TryFrom<Option<&str>> for LetterMask {
     }
 }
 
-
-
-
-
-
 pub fn search<'a>(lexi: &'a Lexicon, filter: &Filter) -> Vec<&'a str> {
     let mut entries: Vec<&'a Entry<'a>> = lexi
         .entries()
@@ -350,9 +345,6 @@ mod belle_tests {
     use super::*;
     use crate::FilterBuilder;
     use assert2::check;
-
-
-
 
     #[test]
     fn test_anagram_breakdown() {

@@ -6,3 +6,7 @@ docker-run: docker
 docker:
     npm run build
     docker build -t $DOCKER_IMAGE .
+
+fmt:
+    prettier -w .
+    cargo fmt

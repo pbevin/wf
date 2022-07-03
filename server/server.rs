@@ -1,5 +1,6 @@
 use crate::assets::static_path;
 use crate::lexi::anagram_breakdowns;
+use crate::lexi::search_countdown;
 use crate::lexi::AnagramHit;
 use crate::lexi::Filter;
 use crate::lexi::FilterBuilder;
@@ -15,7 +16,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::process;
 use tower_http::trace::TraceLayer;
-use crate::lexi::search_countdown;
 
 const MAX_RESULTS: usize = 100;
 
@@ -44,7 +44,7 @@ pub async fn start(opts: &ServerOpts) {
         .layer(TraceLayer::new_for_http());
 
     println!("Listening on {}", addr);
-    
+
     // run it with hyper on the given address
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
@@ -58,7 +58,9 @@ pub async fn search(Query(query): Query<SearchQuery>) -> Json<SearchResults> {
     if let Some(term) = query.get_contains() {
         let hits = anagram_breakdowns(&LEXI, &filter, term);
         if hits.len() > MAX_RESULTS {
-            return Json(SearchResults::Oversize { max_hits: MAX_RESULTS });
+            return Json(SearchResults::Oversize {
+                max_hits: MAX_RESULTS,
+            });
         }
         let mut hits = hits.into_iter().map(Hit::from).collect_vec();
         // Sort hits by decreasing score
