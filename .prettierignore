@@ -1,0 +1,5 @@
+.github
+build
+target
+lexicon
+package-lock.json
