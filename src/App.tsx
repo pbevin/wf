@@ -1,5 +1,5 @@
 import { Box, Container, Paper } from '@mui/material'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { Countdown } from './Countdown'
 
@@ -16,12 +16,16 @@ function App() {
                         },
                         p: {
                             sm: 0,
-                            md: 3
+                            md: 3,
                         },
                     }}
                 >
                     <Routes>
-                        <Route path="/" element={<Countdown />} />
+                        <Route
+                            path="/"
+                            element={<Navigate to="/countdown" replace />}
+                        />
+                        <Route path="/countdown" element={<Countdown />} />
                     </Routes>
                 </Box>
             </Paper>

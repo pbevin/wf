@@ -1,47 +1,49 @@
-import { useReducer, useState } from 'react'
+import { useReducer } from 'react'
 import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
 import { Button, ButtonGroup, Stack, Typography } from '@mui/material'
 import { useQuery, useQueryClient } from 'react-query'
-import { canAddConsonant, canAddVowel, canShuffle, canSubmit, initPool, reducePool } from './pool'
+import {
+    canAddConsonant,
+    canAddVowel,
+    canShuffle,
+    canSubmit,
+    initPool,
+    reducePool,
+} from './pool'
+import { useSearchParams } from 'react-router-dom'
 
 export function Countdown(): JSX.Element {
+    const [searchParams, setSearchParams] = useSearchParams()
     const queryClient = useQueryClient()
-    const [search, setSearch] = useState<string | null>(null)
 
-    if (search) {
+    const q = searchParams.get('q')
+    if (q) {
         return (
-            <CountdownResults
-                search={{ q: search }}
-                back={() => setSearch(null)}
-            />
+            <CountdownResults search={{ q }} back={() => setSearchParams({})} />
         )
     } else {
         const handleSubmit = async (value: string) => {
             await queryClient.prefetchQuery(['countdown', { q: value }], () =>
                 fetchCountdown({ q: value })
             )
-            setSearch(value)
+            setSearchParams({ q: value })
         }
-        const handleChange = async () => {
-            setSearch(null)
-        }
-        return <Form onSubmit={handleSubmit} onChange={handleChange} />
+        return <Form onSubmit={handleSubmit} />
     }
 }
 
 interface FormProps {
     onSubmit: (newValue: string) => void
-    onChange: () => void
 }
 
-function Form({ onSubmit, onChange }: FormProps) {
+function Form({ onSubmit }: FormProps) {
     const [pool, dispatch] = useReducer(reducePool, initPool())
 
     let handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         dispatch({ type: 'set', letters: event.target.value })
-        onChange()
     }
+
     let handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         onSubmit(pool.word)
@@ -108,7 +110,12 @@ function Form({ onSubmit, onChange }: FormProps) {
             />
 
             <Stack direction="row" spacing={1}>
-                <Button type="submit" variant="contained" color="primary" disabled={!canSubmit(pool)}>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={!canSubmit(pool)}
+                >
                     Solve
                 </Button>
                 <Button
@@ -186,10 +193,16 @@ function Board({ word, letters }: BoardProps) {
         remaining = remaining.replace(letter, '')
     }
     return (
-        <Stack direction="column">
-            <Letters letters={word} length={9} align="left" />
-            <Letters letters={remaining} dim length={9} align="right" />
-        </Stack>
+        <a
+            href={'https://www.thefreedictionary.com/' + word}
+            target="_blank"
+            rel="noreferrer"
+        >
+            <Stack direction="column">
+                <Letters letters={word} length={9} align="left" />
+                <Letters letters={remaining} dim length={9} align="right" />
+            </Stack>
+        </a>
     )
 }
 
@@ -220,17 +233,17 @@ function Tile({ letter, dim }: { letter: string; dim?: boolean }) {
 }
 
 const TILE_SX = {
+    fontSize: '30px',
     width: '1.2em',
     height: '1.2em',
+    lineHeight: '1.2em',
     fontWeight: 'bold',
     margin: '1px',
     padding: '0',
     color: 'white',
-    backgroundColor: '#14165f',
+    backgroundColor: '#1b1f9e',
     textAlign: 'center',
     float: 'left',
-    lineHeight: '1.1em',
-    fontSize: '30px',
 }
 
 function pad(
