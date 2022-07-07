@@ -1,7 +1,8 @@
 import { Box, Container, Paper } from '@mui/material'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import './App.css'
 import { Countdown } from './Countdown'
+import { Search } from './Search'
 
 function App() {
     return (
@@ -21,10 +22,7 @@ function App() {
                     }}
                 >
                     <Routes>
-                        <Route
-                            path="/"
-                            element={<Navigate to="/countdown" replace />}
-                        />
+                        <Route path="/" element={<Search />} />
                         <Route path="/countdown" element={<Countdown />} />
                     </Routes>
                 </Box>

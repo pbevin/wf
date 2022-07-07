@@ -6,6 +6,7 @@ pub use filter::{Filter, FilterBuilder};
 pub use length_range::LengthRange;
 pub use sorted_letters::SortedLetters;
 
+use serde_repr::*;
 use std::collections::HashMap;
 
 /// A lexicon is a collection of words plus popularity data.
@@ -171,7 +172,7 @@ impl<'a> Entry<'a> {
         self.one_word
     }
 
-    pub fn word(&self) -> &str {
+    pub fn word(&self) -> &'a str {
         self.word
     }
 
@@ -333,11 +334,12 @@ pub enum Quality {
     VeryPopular = 3,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
 pub enum Popularity {
-    Low,
-    Medium,
-    High,
+    Low = 1,
+    Medium = 2,
+    High = 3,
 }
 
 #[cfg(test)]

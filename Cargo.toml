@@ -28,6 +28,7 @@ ctrlc = { version = "3.2.2", features = ["termination"] }
 clap = { version = "3.2.8", features = ["env", "derive"] }
 tracing-subscriber = { version = "0.3.14", features = ["env-filter"] }
 owo-colors = "3.4.0"
+serde_repr = "0.1.8"
 
 [dev-dependencies]
 assert2 = "0.3.6"
