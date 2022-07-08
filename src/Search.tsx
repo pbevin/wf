@@ -10,7 +10,7 @@ import {
 
 import { useState } from 'react'
 import { useQuery } from 'react-query'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 type GameType = 'countdown' | 'connect'
 
@@ -40,7 +40,7 @@ async function fetchPreview(form: SearchForm): Promise<PreviewResults | null> {
 }
 
 export function Search(): JSX.Element {
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [, setSearchParams] = useSearchParams()
     const [form, setForm] = useState<SearchForm>({
         input: '',
         goal: 'connect',
