@@ -54,7 +54,7 @@ const inputFormFromSearchParams = (
     const goal = searchParams.get('goal')
     if (q !== null && (goal === 'connect' || goal === 'countdown')) {
         return {
-            input: q.toUpperCase().replaceAll(/[^A-Z]/g, ''),
+            input: q.toUpperCase().replace(/[^A-Z]/g, ''),
             goal: goal as GameType,
         }
     }

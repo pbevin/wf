@@ -24,7 +24,7 @@ export function SearchForm({
     onSubmit,
 }: SearchFormProps) {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const input = event.target.value.toUpperCase().replaceAll(/[^A-Z]/g, '')
+        const input = event.target.value.toUpperCase().replace(/[^A-Z]/g, '')
         onChange({ ...form, input })
     }
 
