@@ -40,11 +40,11 @@ interface FormProps {
 function Form({ onSubmit }: FormProps) {
     const [pool, dispatch] = useReducer(reducePool, initPool())
 
-    let handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         dispatch({ type: 'set', letters: event.target.value })
     }
 
-    let handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         onSubmit(pool.word)
     }

@@ -15,6 +15,7 @@
         "@types/node": "^16.11.41",
         "@types/react": "^18.0.14",
         "@types/react-dom": "^18.0.5",
+        "husky": "^8.0.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-query": "^3.39.1",
@@ -27,12 +28,18 @@
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "typescript": "tsc --project tsconfig.json --noEmit",
+        "lint": "eslint src --color",
+        "prettier": "prettier src -check",
+        "lint-staged": "lint-staged --config lint-staged.js",
+        "prepare": "husky install"
     },
     "eslintConfig": {
         "extends": [
             "react-app",
-            "react-app/jest"
+            "react-app/jest",
+            "plugin:@typescript-eslint/recommended"
         ]
     },
     "prettier": {
@@ -52,5 +59,10 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
+    },
+    "devDependencies": {
+        "husky": "^8.0.0",
+        "lint-staged": "^13.0.3",
+        "tsc-files": "^1.1.3"
     }
 }

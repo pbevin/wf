@@ -18,5 +18,6 @@ jobs:
               with:
                   node-version: 14
             - run: npm ci
+            - run: npm run test
             - run: npm run build
             - run: flyctl deploy --remote-only

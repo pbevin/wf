@@ -7,8 +7,10 @@ RUN --mount=type=cache,target=/app/target \
     --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/usr/local/rustup \
     set -eux; \
-    rustup install stable; \
-    cargo build --release; \
+    rustup install stable && \
+    cargo install cargo-nextest && \
+    cargo nextest run && \
+    cargo build --release && \
     cp -a target/release/wf /app/wf
 
 ################################################################################

@@ -8,19 +8,21 @@ import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 const rootElement = document.getElementById('root')
-const root = createRoot(rootElement!)
-const queryClient = new QueryClient()
+if (rootElement) {
+    const root = createRoot(rootElement)
+    const queryClient = new QueryClient()
 
-root.render(
-    <React.StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <ThemeProvider theme={theme}>
-                {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-                <CssBaseline />
-                <BrowserRouter>
-                    <App />
-                </BrowserRouter>
-            </ThemeProvider>
-        </QueryClientProvider>
-    </React.StrictMode>
-)
+    root.render(
+        <React.StrictMode>
+            <QueryClientProvider client={queryClient}>
+                <ThemeProvider theme={theme}>
+                    {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+                    <CssBaseline />
+                    <BrowserRouter>
+                        <App />
+                    </BrowserRouter>
+                </ThemeProvider>
+            </QueryClientProvider>
+        </React.StrictMode>
+    )
+}
