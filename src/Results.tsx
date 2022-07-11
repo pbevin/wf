@@ -20,7 +20,11 @@ type ResultsProps = {
     preview?: boolean
 }
 
-export function WordsByLength({ data, form }: WordsByLengthProps): JSX.Element {
+export function WordsByLength({
+    data,
+    form,
+    preview,
+}: WordsByLengthProps): JSX.Element {
     const groups = data.groups.map(({ len, words }) => (
         <Box key={len}>
             {len}:
@@ -29,9 +33,22 @@ export function WordsByLength({ data, form }: WordsByLengthProps): JSX.Element {
             ))}
         </Box>
     ))
+    const heading = (): JSX.Element => {
+        if (preview) {
+            return (
+                <Box sx={{ mb: 1 }}>
+                    Preview: {data.num_shown} of {data.num_total} results for{' '}
+                    {term}
+                </Box>
+            )
+        } else {
+            return <h2>Results for {term}</h2>
+        }
+    }
+    const term = searchTermFromInputString(form.input)
     return (
         <Box>
-            <h2>Results for {searchTermFromInputString(form.input)}</h2>
+            {heading()}
             {groups}
         </Box>
     )
