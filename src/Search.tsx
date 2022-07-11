@@ -1,44 +1,33 @@
-import { Box } from '@mui/material'
-
 import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { useSearchParams } from 'react-router-dom'
 import { Results } from './Results'
 import { SearchForm } from './SearchForm'
 import {
+    GameType,
     InputForm,
     inputFormFromSearchParams,
     SearchResults,
 } from './SearchTypes'
-
-async function fetchPreview(form: InputForm): Promise<SearchResults> {
-    if (form.input === '') {
-        return {
-            num_total: 0,
-            num_shown: 0,
-            type: 'empty',
-        }
-    }
-    const url = `/api/preview?${new URLSearchParams({
-        q: form.input,
-        goal: form.goal,
-    })}`
-    const resp = await fetch(url)
-    return await resp.json()
-}
 
 export function Search(): JSX.Element {
     const [form, setForm] = useState<InputForm>({
         input: '',
         goal: 'connect',
     })
-    const preview = useQuery(['preview', form], async () => fetchPreview(form))
+    const preview = useQuery(['preview', form], async () =>
+        fetchResults({ ...form, limit: 10 })
+    )
     const [searchParams, setSearchParams] = useSearchParams()
 
     const resultsForm = inputFormFromSearchParams(searchParams)
-
-    return (
-        <Box>
+    const results = useQuery(['full', resultsForm], async () =>
+        fetchResults(form)
+    )
+    if (resultsForm && results.data) {
+        return <Results form={resultsForm} data={results.data} />
+    } else {
+        return (
             <SearchForm
                 preview={preview.data}
                 form={form}
@@ -47,7 +36,34 @@ export function Search(): JSX.Element {
                     setSearchParams({ q: form.input, goal: form.goal })
                 }
             />
-            {resultsForm && <Results form={resultsForm} />}
-        </Box>
-    )
+        )
+    }
+}
+
+type SP = {
+    q: string
+    goal: GameType
+    limit?: string
+}
+
+async function fetchResults(form: InputForm): Promise<SearchResults> {
+    if (form.input === '') {
+        return {
+            num_total: 0,
+            num_shown: 0,
+            type: 'empty',
+        }
+    }
+
+    const sp: SP = {
+        q: form.input,
+        goal: form.goal,
+    }
+    if (form.limit) {
+        sp.limit = form.limit.toString()
+    }
+
+    const url = `/api/search?${new URLSearchParams(sp)}`
+    const resp = await fetch(url)
+    return await resp.json()
 }

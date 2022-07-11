@@ -183,6 +183,10 @@ impl<'a> Entry<'a> {
     pub fn rank(&self) -> Option<usize> {
         self.rank
     }
+
+    pub(crate) fn letters(&self) -> &SortedLetters {
+        &self.sorted
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -245,32 +249,6 @@ pub fn solve_anagram(lexi: &Lexicon, letters: &SortedLetters) -> RankedWord {
             quality: Quality::NotWord,
         },
     }
-}
-
-pub fn search_countdown<'a>(lexi: &'a Lexicon<'a>, letters: &str) -> Vec<&'a str> {
-    let sorted = SortedLetters::from_word(letters);
-    let filter = FilterBuilder::new().contained(sorted).build();
-
-    let mut entries: Vec<&'a Entry<'a>> = lexi
-        .entries()
-        .filter(|entry| filter.matches(entry))
-        .filter(|entry| entry.word.chars().all(|c| c.is_ascii_lowercase()))
-        .collect();
-
-    // Sort by decreasing length, then by decreasing popularity, then alphabetically.
-    entries.sort_unstable_by(|a, b| {
-        if a.len() == b.len() {
-            if a.rank() == b.rank() {
-                a.word().cmp(b.word())
-            } else {
-                b.rank().cmp(&a.rank())
-            }
-        } else {
-            b.len().cmp(&a.len())
-        }
-    });
-
-    entries.into_iter().map(|entry| entry.word()).collect()
 }
 
 pub struct RankedWord {

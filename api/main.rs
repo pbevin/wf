@@ -1,14 +1,16 @@
 #![warn(clippy::str_to_string)]
 #![warn(clippy::if_then_some_else_none)]
 
+mod anagrams;
 mod assets;
 mod lexi;
 mod server;
 
+pub use self::anagrams::anagrams;
 use self::lexi::FilterBuilder;
 use self::lexi::Lexicon;
+use self::lexi::Popularity;
 use self::lexi::{Filter, LengthRange, SortedLetters};
-use crate::lexi::Popularity;
 use clap::ArgGroup;
 use clap::Parser;
 use clap::Subcommand;

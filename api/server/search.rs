@@ -1,3 +1,5 @@
+use super::types::Decomposition;
+use super::types::{CountedResults, GameType, RatedWord, SearchQuery, SearchResults, WordGroup};
 use crate::lexi::Entry;
 use crate::lexi::FilterBuilder;
 use crate::lexi::Lexicon;
@@ -6,94 +8,22 @@ use axum::extract::Query;
 use axum::Extension;
 use axum::Json;
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
 use std::cmp::Reverse;
 use std::sync::Arc;
 
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum GameType {
-    Countdown,
-    Connect,
-    Anagram,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct PreviewQuery {
-    #[serde(rename = "q")]
-    pub term: String,
-    pub goal: GameType,
-    pub limit: Option<usize>,
-}
-
-/// The result of a preview query or full search.
-#[derive(Debug, Clone, Serialize)]
-pub struct SearchResults {
-    pub num_total: usize,
-    pub num_shown: usize,
-    #[serde(flatten)]
-    pub results: Results,
-}
-
-#[derive(Debug, Clone, Serialize)]
-#[serde(tag = "type")]
-#[serde(rename_all = "snake_case")]
-pub enum Results {
-    WordsByLength { groups: Vec<WordGroup> },
-    // Anagrams(Vec<Decomposition>),
-}
-
-/// A group of words with the same length.
-#[derive(Debug, Clone, Serialize)]
-pub struct WordGroup {
-    /// All the words in the group are this length.
-    pub len: usize,
-    /// Words in the group, most popular first.
-    pub words: Vec<RatedWord>,
-}
-
-/// A collection of ways to decompose a word into subsets,
-/// such that all the subsets except possibly the last are
-/// in the lexicon.
-/// For example, some of the decompositions of STEAM are:
-///   ME + AT + "S"
-///   ME + SAT + ""
-///   SEA + "TM"
-///   A + STEM + ""
-/// The quoted component at the end is the "remainder" that
-/// is not in the lexicon.
-#[derive(Debug, Clone, Serialize)]
-pub struct Decomposition {
-    pub words: Vec<RatedWord>,
-    pub remainder: String,
-}
-
-/// A word, plus a rough estimate of its popularity.  The word is guaranteed
-/// to be in the lexicon, and the rating is a rough estimate of how popular
-/// the word is (1 = rare, 2 = common, 3 = very common)
-#[derive(Debug, Clone, Serialize)]
-pub struct RatedWord {
-    pub word: String,
-    pub rating: Popularity,
-}
-
-/// Performs a search for the given query, and returns a short preview of the results.
-/// This is intended to be used for live previews in the UI.
-pub async fn get_preview(
-    Query(query): Query<PreviewQuery>,
-    Extension(lexi): Extension<Arc<Lexicon<'_>>>,
-) -> Json<SearchResults> {
-    do_search(&query.term, 10, lexi)
-}
-
 pub async fn search(
-    Query(query): Query<PreviewQuery>,
+    Query(query): Query<SearchQuery>,
     Extension(lexi): Extension<Arc<Lexicon<'_>>>,
-) -> Json<SearchResults> {
-    do_search(&query.term, usize::MAX, lexi)
+) -> Json<CountedResults> {
+    let limit = query.limit.unwrap_or(usize::MAX);
+    match query.game_type {
+        GameType::Countdown | GameType::Connect => longest_subwords(&query.term, limit, lexi),
+        GameType::Anagram => anagram_search(&query.term, limit, lexi),
+        GameType::Ghost => todo!(),
+    }
 }
 
-fn do_search(term: &str, limit: usize, lexi: Arc<Lexicon>) -> Json<SearchResults> {
+fn longest_subwords(term: &str, limit: usize, lexi: Arc<Lexicon>) -> Json<CountedResults> {
     let filter = FilterBuilder::new()
         .contained(term)
         .single_word(true.into())
@@ -113,10 +43,55 @@ fn do_search(term: &str, limit: usize, lexi: Arc<Lexicon>) -> Json<SearchResults
         .into_iter()
         .map(build_group)
         .collect_vec();
-    Json(SearchResults {
+    Json(CountedResults {
         num_total,
         num_shown,
-        results: Results::WordsByLength { groups },
+        results: SearchResults::WordsByLength { groups },
+    })
+}
+
+fn anagram_search(term: &str, limit: usize, lexi: Arc<Lexicon>) -> Json<CountedResults> {
+    let results = crate::anagrams(term, &lexi)
+        .filter_map(|(words, residue)| residue.is_empty().then(|| words))
+        .collect_vec();
+    let num_total = results.len();
+    let mut results = results
+        .iter()
+        .map(|entries| Decomposition {
+            words: entries
+                .iter()
+                .map(|entry| {
+                    let word = entry.word().into();
+                    let rating = lexi.rate(entry);
+                    RatedWord { word, rating }
+                })
+                .collect_vec(),
+        })
+        .collect_vec();
+
+    // Stable sort here, because there was already a vague ordering by
+    // quality of the first word.
+    results.sort_by_key(|r| {
+        let most_unpopular = r
+            .words
+            .iter()
+            .map(|w| w.rating as usize)
+            .min()
+            .unwrap_or_default();
+        // let pop1 = r.words.get(0).map(|w| w.rating as usize).unwrap_or(0);
+        // let popularity = r.words.iter().map(|w| w.rating as usize).max().unwrap_or(0);
+        // let unpopularity = r.words.iter().map(|w| w.rating as usize).min().unwrap_or(5);
+        // let max_len = r.words.iter().map(|w| w.word.len()).max().unwrap_or(0);
+        // let min_len = r.words.iter().map(|w| w.word.len()).min().unwrap_or(20);
+        (Reverse(most_unpopular), r.words.len())
+    });
+
+    results.truncate(limit);
+
+    Json(CountedResults {
+        num_total,
+        num_shown: results.len(),
+        results: SearchResults::Anagrams { anagrams: results },
     })
 }
 

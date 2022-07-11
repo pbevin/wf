@@ -37,6 +37,10 @@ impl SortedLetters {
         }
         Some(Self { letters: sorted })
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.letters.iter().all(|&a| a == 0)
+    }
 }
 
 impl TryFrom<&str> for SortedLetters {

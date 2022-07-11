@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
-import { Preview } from './Preview'
+import { Results } from './Results'
 import { InputForm, SearchResults } from './SearchTypes'
 
 const preview: SearchResults = {
@@ -22,13 +22,13 @@ const preview: SearchResults = {
 
 test('shows a preview', async () => {
     const form: InputForm = { input: 'QUUX', goal: 'connect' }
-    render(<Preview data={preview} form={form} />)
+    render(<Results preview data={preview} form={form} />)
     expect(screen.getByText('Preview: 4 of 29 results for QUUX')).not.toBeNull()
 })
 
 test('shows number of letters for longer words', () => {
     const form: InputForm = { input: 'FOOBAR', goal: 'connect' }
-    render(<Preview data={preview} form={form} />)
+    render(<Results preview data={preview} form={form} />)
     expect(
         screen.getByText('Preview: 4 of 29 results for FOOBAR (6 letters)')
     ).not.toBeNull()

@@ -1,33 +1,23 @@
 import { Box } from '@mui/material'
-import { useQuery } from 'react-query'
 import { InputForm, SearchResults, Rating as WordRating } from './SearchTypes'
 
 // Displays the full results for a search.
-export function Results({ form }: { form: InputForm }): JSX.Element | null {
-    const { data } = useQuery(
-        ['results', form],
-        async () => await fetchFullResults(form)
-    )
-
-    if (!data) {
-        return null
-    }
-
+export function Results(props: ResultsProps): JSX.Element | null {
+    const { form, data, preview } = props
     switch (data.type) {
         case 'words_by_length':
-            return <WordsByLength data={data} form={form} />
+            return <WordsByLength data={data} form={form} preview={preview} />
         case 'anagrams':
-            return <Anagrams data={data} form={form} />
+            return <Anagrams data={data} form={form} preview={preview} />
         default:
             return null
     }
 }
 
-type WordsByLengthProps = {
-    data: SearchResults & {
-        type: 'words_by_length'
-    }
+type ResultsProps = {
     form: InputForm
+    data: SearchResults
+    preview?: boolean
 }
 
 export function WordsByLength({ data, form }: WordsByLengthProps): JSX.Element {
@@ -41,11 +31,45 @@ export function WordsByLength({ data, form }: WordsByLengthProps): JSX.Element {
     ))
     return (
         <Box>
-            <h2>
-                Results for
-                {form.input.toUpperCase()}
-            </h2>
+            <h2>Results for {searchTermFromInputString(form.input)}</h2>
             {groups}
+        </Box>
+    )
+}
+
+type WordsByLengthProps = {
+    data: SearchResults & {
+        type: 'words_by_length'
+    }
+    form: InputForm
+    preview?: boolean
+}
+
+function Anagrams({ data, form }: AnagramsProps): JSX.Element {
+    return (
+        <Box>
+            <h2>Results for {searchTermFromInputString(form.input)}</h2>
+            <p>
+                Showing {data.num_shown} of {data.num_total} results
+            </p>
+            <Box
+                sx={{
+                    width: '100%',
+                    bgcolor: 'background.paper',
+                }}
+            >
+                {data.anagrams.map(({ words, remainder }, i) => (
+                    <Box key={i}>
+                        {words.map(({ word, rating }, idx) => (
+                            <span key={word}>
+                                {idx > 0 && ' + '}
+                                {colorizeWord(word.toUpperCase(), rating)}
+                            </span>
+                        ))}
+                        {remainder && ` + ${remainder}`}
+                    </Box>
+                ))}
+            </Box>
         </Box>
     )
 }
@@ -55,25 +79,7 @@ type AnagramsProps = {
         type: 'anagrams'
     }
     form: InputForm
-}
-
-function Anagrams({ data, form }: AnagramsProps): JSX.Element {
-    const results = data.values.map(([, words], i) => (
-        <Box key={i}>
-            {words.map(({ word, rating }) => (
-                <span key={word}>{colorizeWord(word, rating)} </span>
-            ))}
-        </Box>
-    ))
-    return (
-        <Box>
-            <h2>
-                Results for
-                {form.input.toUpperCase()}
-            </h2>
-            {results}
-        </Box>
-    )
+    preview?: boolean
 }
 
 export const colorizeWord = (word: string, rating: WordRating) => {
@@ -86,11 +92,9 @@ export const colorizeWord = (word: string, rating: WordRating) => {
     return <span style={style}>{word}</span>
 }
 
-async function fetchFullResults(form: InputForm): Promise<SearchResults> {
-    const url = `/api/results?${new URLSearchParams({
-        q: form.input,
-        goal: form.goal,
-    })}`
-    const resp = await fetch(url)
-    return await resp.json()
+function searchTermFromInputString(input: string) {
+    if (input.length >= 5) {
+        input += ` (${input.length} letters)`
+    }
+    return input
 }

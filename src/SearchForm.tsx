@@ -7,8 +7,8 @@ import {
     RadioGroup,
     TextField,
 } from '@mui/material'
+import { Results } from './Results'
 import { GameType, InputForm, SearchResults } from './SearchTypes'
-import { Preview } from './Preview'
 
 type SearchFormProps = {
     preview: SearchResults | undefined
@@ -83,7 +83,7 @@ export function SearchForm({
                     onChange={handleChange}
                     autoFocus
                 />
-                {preview && <Preview data={preview} form={form} />}
+                {preview && <Results preview data={preview} form={form} />}
             </Box>
         </Box>
     )

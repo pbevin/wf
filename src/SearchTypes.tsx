@@ -1,9 +1,10 @@
 export const game_types = ['countdown', 'connect', 'anagram'] as const
 export type GameType = typeof game_types[number]
 
-export interface InputForm {
+export type InputForm = {
     input: string
     goal: GameType
+    limit?: number
 }
 
 export type SearchResults = Counts & TypedResult
@@ -15,7 +16,7 @@ export type Counts = {
 
 export type TypedResult =
     | { type: 'words_by_length'; groups: LengthGroup[] }
-    | { type: 'anagrams'; values: AnagramResult[] }
+    | { type: 'anagrams'; anagrams: AnagramResult[] }
     | { type: 'empty' }
 
 /**
@@ -26,7 +27,7 @@ export type RatedWord = { word: string; rating: Rating }
 // 1 = unpopular word (but still in lexicon), 2 = popular word, 3 = very popular word
 export type Rating = 1 | 2 | 3
 
-export type AnagramResult = RatedWord[][]
+export type AnagramResult = { words: RatedWord[]; remainder: string }
 
 export function goalFromString(input: string | null): GameType | undefined {
     return game_types.find((g) => g === input)

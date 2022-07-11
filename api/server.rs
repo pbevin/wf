@@ -1,17 +1,12 @@
 mod search;
+mod types;
 
-use self::search::get_preview;
 use self::search::search;
 use crate::assets::static_path;
-use crate::lexi::search_countdown;
 use crate::lexi::Lexicon;
 use crate::ServerOpts;
-use axum::extract::Json;
-use axum::extract::Query;
 use axum::Extension;
 use axum::{routing::get, Router};
-use serde::Deserialize;
-use serde::Serialize;
 use std::process;
 use std::sync::Arc;
 use tower_http::trace::TraceLayer;
@@ -36,9 +31,7 @@ pub async fn start(opts: &ServerOpts) {
     let lexi = Arc::new(Lexicon::load());
 
     let app = Router::new()
-        .route("/api/preview", get(get_preview))
-        .route("/api/results", get(search))
-        .route("/api/countdown", get(countdown))
+        .route("/api/search", get(search))
         .fallback(get(static_path))
         .layer(Extension(Arc::clone(&lexi)))
         .layer(TraceLayer::new_for_http());
@@ -50,30 +43,4 @@ pub async fn start(opts: &ServerOpts) {
         .serve(app.into_make_service())
         .await
         .unwrap();
-}
-
-/// Countdown query
-#[derive(Deserialize)]
-pub struct CountdownQuery {
-    pub q: String,
-}
-
-/// Countdown results
-#[derive(Serialize)]
-pub struct CountdownResults {
-    pub q: String,
-    pub words: Vec<String>,
-}
-
-pub async fn countdown(
-    Query(query): Query<CountdownQuery>,
-    Extension(lexi): Extension<Arc<Lexicon<'_>>>,
-) -> Json<CountdownResults> {
-    let q = query.q;
-    let words = search_countdown(&lexi, &q)
-        .into_iter()
-        .take(10)
-        .map(|s| s.to_owned())
-        .collect();
-    Json(CountdownResults { q, words })
 }
