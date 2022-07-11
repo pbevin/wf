@@ -5,7 +5,7 @@ edition = "2021"
 
 [[bin]]
 name = "wf"
-path = "server/main.rs"
+path = "api/main.rs"
 
 [profile.dev]
 opt-level = 1
