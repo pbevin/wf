@@ -7,11 +7,11 @@ import {
     RadioGroup,
     TextField,
 } from '@mui/material'
-import { GameType, InputForm, PreviewResults } from './SearchTypes'
+import { GameType, InputForm, SearchResults } from './SearchTypes'
 import { Preview } from './Preview'
 
 type SearchFormProps = {
-    preview: PreviewResults | undefined
+    preview: SearchResults | undefined
     form: InputForm
     onChange: (form: InputForm) => void
     onSubmit: (form: InputForm) => void
@@ -59,6 +59,11 @@ export function SearchForm({
                             value="connect"
                             control={<Radio />}
                             label="Connect"
+                        />
+                        <FormControlLabel
+                            value="anagram"
+                            control={<Radio />}
+                            label="Anagram"
                         />
                     </RadioGroup>
                 </FormControl>

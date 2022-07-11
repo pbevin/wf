@@ -1,9 +1,7 @@
-mod fullsearch;
-mod preview;
+mod search;
 
-use self::fullsearch::fullsearch;
-use self::preview::get_preview;
-use self::preview::search;
+use self::search::get_preview;
+use self::search::search;
 use crate::assets::static_path;
 use crate::lexi::search_countdown;
 use crate::lexi::Lexicon;
@@ -40,7 +38,6 @@ pub async fn start(opts: &ServerOpts) {
     let app = Router::new()
         .route("/api/preview", get(get_preview))
         .route("/api/results", get(search))
-        .route("/api/fullsearch", get(fullsearch))
         .route("/api/countdown", get(countdown))
         .fallback(get(static_path))
         .layer(Extension(Arc::clone(&lexi)))

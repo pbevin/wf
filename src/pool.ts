@@ -67,9 +67,7 @@ function pick(numVowels: number, numConsonants: number): Pool {
 }
 
 function setWord(word: string): Pool {
-    const pool = initPool()
-    let vowels = pool.vowels
-    let consonants = pool.consonants
+    let { vowels, consonants } = initPool()
     let taken = ''
     word.toUpperCase()
         .split('')

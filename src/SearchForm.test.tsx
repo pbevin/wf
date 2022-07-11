@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { SearchForm } from './SearchForm'
-import { InputForm, PreviewResults } from './SearchTypes'
 import { keyboard } from '@testing-library/user-event/dist/keyboard'
+import { SearchForm } from './SearchForm'
+import { game_types, InputForm, SearchResults } from './SearchTypes'
 
 test('loads and displays a title', async () => {
-    const preview: PreviewResults = {
+    const preview: SearchResults = {
         num_total: 0,
         num_shown: 0,
-        groups: [],
+        type: 'empty',
     }
 
     const onChange = jest.fn()
@@ -27,13 +27,16 @@ test('loads and displays a title', async () => {
 
     const heading = await screen.findByRole('heading')
     expect(heading).toHaveTextContent('Word Search')
+
+    const radios = await screen.findAllByRole('radio')
+    expect(radios).toHaveLength(game_types.length)
 })
 
 test('sends onChange when text is typed', async () => {
-    const preview: PreviewResults = {
+    const preview: SearchResults = {
         num_total: 0,
         num_shown: 0,
-        groups: [],
+        type: 'empty',
     }
 
     const onChange = jest.fn()

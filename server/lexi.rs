@@ -222,41 +222,6 @@ impl TryFrom<Option<&str>> for LetterMask {
     }
 }
 
-pub fn search<'a>(lexi: &'a Lexicon, filter: &Filter) -> Vec<&'a str> {
-    let mut entries: Vec<&'a Entry<'a>> = lexi
-        .entries()
-        .filter(|entry| filter.matches(entry))
-        .collect();
-    entries.sort_unstable_by(|a, b| {
-        if a.len() == b.len() {
-            a.word().cmp(b.word())
-        } else {
-            b.len().cmp(&a.len())
-        }
-    });
-    let words: Vec<&'a str> = entries.iter().map(|entry| entry.word()).collect();
-    words
-}
-
-pub fn anagram_breakdowns<'a>(
-    lexi: &'a Lexicon<'a>,
-    filter: &Filter,
-    contains: &'a str,
-) -> Vec<AnagramHit<'a>> {
-    let sorted = SortedLetters::from_word(contains);
-    lexi.entries()
-        .filter(|entry| filter.matches(entry))
-        .map(|entry| {
-            let remainder = entry.without_letters_in(&sorted).unwrap();
-            AnagramHit {
-                query: contains,
-                short: solve_anagram(lexi, &remainder),
-                long: solve_anagram(lexi, &entry.sorted),
-            }
-        })
-        .collect()
-}
-
 pub fn solve_anagram(lexi: &Lexicon, letters: &SortedLetters) -> RankedWord {
     let result = lexi
         .solve_anagram(letters)
@@ -308,19 +273,6 @@ pub fn search_countdown<'a>(lexi: &'a Lexicon<'a>, letters: &str) -> Vec<&'a str
     entries.into_iter().map(|entry| entry.word()).collect()
 }
 
-/// Represents part of an anagram search result.
-/// For example, if the search query is "abc", and the result is "abcdef",
-/// then the reduction is "abc" -> "def".
-///
-/// The remainder is the part of the result that is not in the search query.
-pub struct AnagramHit<'a> {
-    pub query: &'a str,
-    // Short word that can be added to the search query to get the full result.
-    pub short: RankedWord,
-    // Long word containing the search term and remaining letters
-    pub long: RankedWord,
-}
-
 pub struct RankedWord {
     pub word: String,
     pub quality: Quality,
@@ -340,25 +292,4 @@ pub enum Popularity {
     Low = 1,
     Medium = 2,
     High = 3,
-}
-
-#[cfg(test)]
-mod belle_tests {
-    use super::*;
-    use crate::FilterBuilder;
-    use assert2::check;
-
-    #[test]
-    fn test_anagram_breakdown() {
-        let filter = FilterBuilder::new().contains("lusters").length("8").build();
-        let lexi = Lexicon::from_iter(["clusters", "dusters", "lusters"])
-            .with_popular_words(["clusters"], 1);
-        let xs = anagram_breakdowns(&lexi, &filter, "lusters");
-        check!(xs.len() == 1);
-        check!(xs[0].query == "lusters");
-        check!(xs[0].short.word == "c");
-        check!(xs[0].short.quality == Quality::NotWord);
-        check!(xs[0].long.word == "clusters");
-        check!(xs[0].long.quality == Quality::VeryPopular);
-    }
 }

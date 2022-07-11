@@ -1,21 +1,22 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import { Preview } from './Preview'
-import { InputForm, PreviewResults } from './SearchTypes'
+import { InputForm, SearchResults } from './SearchTypes'
 
-const preview: PreviewResults = {
+const preview: SearchResults = {
     num_total: 29,
     num_shown: 4,
+    type: 'words_by_length',
     groups: [
-        [5, [['xyzzy', 2]]],
-        [
-            3,
-            [
-                ['foo', 3],
-                ['bar', 1],
-                ['baz', 1],
+        { len: 5, words: [{ word: 'xyzzy', rating: 3 }] },
+        {
+            len: 3,
+            words: [
+                { word: 'foo', rating: 3 },
+                { word: 'bar', rating: 2 },
+                { word: 'baz', rating: 1 },
             ],
-        ],
+        },
     ],
 }
 

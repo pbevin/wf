@@ -3,6 +3,7 @@ import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
 import { Button, ButtonGroup, Stack, Typography } from '@mui/material'
 import { useQuery, useQueryClient } from 'react-query'
+import { useSearchParams } from 'react-router-dom'
 import {
     canAddConsonant,
     canAddVowel,
@@ -11,7 +12,6 @@ import {
     initPool,
     reducePool,
 } from './pool'
-import { useSearchParams } from 'react-router-dom'
 
 export function Countdown(): JSX.Element {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -22,15 +22,14 @@ export function Countdown(): JSX.Element {
         return (
             <CountdownResults search={{ q }} back={() => setSearchParams({})} />
         )
-    } else {
-        const handleSubmit = async (value: string) => {
-            await queryClient.prefetchQuery(['countdown', { q: value }], () =>
-                fetchCountdown({ q: value })
-            )
-            setSearchParams({ q: value })
-        }
-        return <Form onSubmit={handleSubmit} />
     }
+    const handleSubmit = async (value: string) => {
+        await queryClient.prefetchQuery(['countdown', { q: value }], () =>
+            fetchCountdown({ q: value })
+        )
+        setSearchParams({ q: value })
+    }
+    return <Form onSubmit={handleSubmit} />
 }
 
 interface FormProps {
@@ -194,7 +193,7 @@ function Board({ word, letters }: BoardProps) {
     }
     return (
         <a
-            href={'https://www.thefreedictionary.com/' + word}
+            href={`https://www.thefreedictionary.com/${word}`}
             target="_blank"
             rel="noreferrer"
         >
@@ -227,9 +226,8 @@ function Letters({ letters, length, dim, align }: LettersProps) {
 function Tile({ letter, dim }: { letter: string; dim?: boolean }) {
     if (dim) {
         return <Box sx={{ ...TILE_SX, color: '#999' }}>{letter}</Box>
-    } else {
-        return <Box sx={TILE_SX}>{letter}</Box>
     }
+    return <Box sx={TILE_SX}>{letter}</Box>
 }
 
 const TILE_SX = {

@@ -1,11 +1,11 @@
 import { createRoot } from 'react-dom/client'
-import App from './App'
 import { BrowserRouter } from 'react-router-dom'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
-import theme from './theme'
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import theme from './theme'
+import App from './App'
 
 const rootElement = document.getElementById('root')
 if (rootElement) {
