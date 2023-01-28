@@ -3,6 +3,7 @@
 
 mod anagrams;
 mod assets;
+mod grep;
 mod lexi;
 mod server;
 
@@ -12,14 +13,14 @@ use self::lexi::Lexicon;
 use self::lexi::Popularity;
 use self::lexi::{Filter, LengthRange, SortedLetters};
 use clap::ArgGroup;
+use clap::CommandFactory;
 use clap::Parser;
 use lexi::solve_anagram;
 use owo_colors::OwoColorize;
+use std::io::stdout;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::EnvFilter;
-use std::io::stdout;
-use clap::CommandFactory;
 
 fn main() {
     install_tracing();
@@ -27,6 +28,7 @@ fn main() {
     match cmdline.command {
         Subcommand::Server(opts) => server::start_sync(&opts),
         Subcommand::Search(filter) => search(filter),
+        Subcommand::Grep(spec) => grep::search(&spec),
         Subcommand::Completions => gen_completions(),
     }
 }
@@ -112,6 +114,7 @@ struct Cmdline {
 enum Subcommand {
     Server(ServerOpts),
     Search(FilterSpec),
+    Grep(GrepSpec),
     Completions,
 }
 
@@ -158,4 +161,12 @@ impl FilterSpec {
             .contained(self.contained.as_deref())
             .build()
     }
+}
+
+#[derive(Debug, Parser)]
+pub struct GrepSpec {
+    #[clap(long, short = 'i')]
+    case_insensitive: bool,
+
+    regex: String,
 }

@@ -13,23 +13,24 @@ opt-level = 1
 
 [dependencies]
 axum = { version = "0.5.7", features = ["headers"] }
+clap_complete = "4.1.1"
+clap = { version = "4.1.4", features = ["env", "derive"] }
+ctrlc = { version = "3.2.2", features = ["termination"] }
 dotenv = "0.15.0"
+include_dir = "0.7.2"
+itertools = "0.10.3"
+lazy_static = "1.4.0"
+mime_guess = "2.0.4"
+owo-colors = "3.4.0"
+serde_repr = "0.1.8"
 serde = { version = "1.0.137", features = ["derive"] }
 thiserror = "1.0.31"
 tokio = { version = "1.19.2", features = ["full"] }
-lazy_static = "1.4.0"
-itertools = "0.10.3"
-tracing = "0.1.35"
 tower-http = { version = "0.3.4", features = ["trace"] }
-include_dir = "0.7.2"
-uri = "0.4.0"
-mime_guess = "2.0.4"
-ctrlc = { version = "3.2.2", features = ["termination"] }
-clap = { version = "4.1.4", features = ["env", "derive"] }
+tracing = "0.1.35"
 tracing-subscriber = { version = "0.3.14", features = ["env-filter"] }
-owo-colors = "3.4.0"
-serde_repr = "0.1.8"
-clap_complete = "4.1.1"
+uri = "0.4.0"
+regex = "1.7.1"
 
 [dev-dependencies]
 assert2 = "0.3.6"
