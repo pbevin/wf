@@ -13,19 +13,21 @@ use self::lexi::Popularity;
 use self::lexi::{Filter, LengthRange, SortedLetters};
 use clap::ArgGroup;
 use clap::Parser;
-use clap::Subcommand;
 use lexi::solve_anagram;
 use owo_colors::OwoColorize;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::EnvFilter;
+use std::io::stdout;
+use clap::CommandFactory;
 
 fn main() {
     install_tracing();
     let cmdline = Cmdline::parse();
     match cmdline.command {
-        Command::Server(opts) => server::start_sync(&opts),
-        Command::Search(filter) => search(filter),
+        Subcommand::Server(opts) => server::start_sync(&opts),
+        Subcommand::Search(filter) => search(filter),
+        Subcommand::Completions => gen_completions(),
     }
 }
 
@@ -93,16 +95,24 @@ fn highlight_popular_words(lexicon: &Lexicon, letters: SortedLetters) -> String 
     }
 }
 
+pub fn gen_completions() {
+    use clap_complete::shells::Fish;
+
+    let cmd = &mut Cmdline::command();
+    clap_complete::generate(Fish, cmd, cmd.get_name().to_owned(), &mut stdout());
+}
+
 #[derive(Debug, Parser)]
 struct Cmdline {
     #[clap(subcommand)]
-    command: Command,
+    command: Subcommand,
 }
 
-#[derive(Debug, Subcommand)]
-enum Command {
+#[derive(Debug, clap::Subcommand)]
+enum Subcommand {
     Server(ServerOpts),
     Search(FilterSpec),
+    Completions,
 }
 
 #[derive(Debug, Parser)]
@@ -143,7 +153,7 @@ impl FilterSpec {
             .length(self.length)
             .exclude_letters(self.exclude_letters.as_deref())
             .include_letters(self.include_letters.as_deref())
-            .single_word(self.one_word.then(|| true))
+            .single_word(self.one_word.then_some(true))
             .contains(self.contains.as_deref())
             .contained(self.contained.as_deref())
             .build()

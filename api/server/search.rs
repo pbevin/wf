@@ -52,7 +52,7 @@ fn longest_subwords(term: &str, limit: usize, lexi: Arc<Lexicon>) -> Json<Counte
 
 fn anagram_search(term: &str, limit: usize, lexi: Arc<Lexicon>) -> Json<CountedResults> {
     let results = crate::anagrams(term, &lexi)
-        .filter_map(|(words, residue)| residue.is_empty().then(|| words))
+        .filter_map(|(words, residue)| residue.is_empty().then_some(words))
         .collect_vec();
     let num_total = results.len();
     let mut results = results
